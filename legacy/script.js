@@ -70,17 +70,19 @@ const particleConfig = {
   particleConfig.particles.move.speed = density.speed;
 })();
 
+const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Bangkok',
+  dateStyle: 'full',
+  timeStyle: 'long'
+});
+
 function runCode() {
   const consoleOutput = document.getElementById('consoleOutput');
   const consoleLines = consoleOutput.querySelector('.console-lines');
   consoleLines.innerHTML = '';
   consoleOutput.classList.add('show');
   const now = new Date();
-  const utc7Time = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Bangkok',
-    dateStyle: 'full',
-    timeStyle: 'long'
-  }).format(now);
+  const utc7Time = dateTimeFormatter.format(now);
 
   const printLine = (text, delay) => new Promise(resolve => {
     setTimeout(() => {
@@ -94,12 +96,14 @@ function runCode() {
   });
 
   (async () => {
-    await printLine(`Current time (UTC+7): ${utc7Time}`, 0);
-    await printLine('Loading profile data...', 500);
-    await printLine('Name: DuyunDz', 800);
-    await printLine('Location: Vietnam', 1100);
-    await printLine('Interests found: coding, modding, reverse engineering', 1400);
-    await printLine('Profile loaded successfully!', 1700);
+    await Promise.all([
+      printLine(`Current time (UTC+7): ${utc7Time}`, 0),
+      printLine('Loading profile data...', 500),
+      printLine('Name: DuyunDz', 800),
+      printLine('Location: Vietnam', 1100),
+      printLine('Interests found: coding, modding, reverse engineering', 1400),
+      printLine('Profile loaded successfully!', 1700)
+    ]);
     setTimeout(() => consoleOutput.classList.remove('show'), 3000);
   })();
 }

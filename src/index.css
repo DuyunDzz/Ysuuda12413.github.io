@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-200 antialiased overflow-x-hidden;
+    @apply bg-zinc-950 text-zinc-200 antialiased overflow-x-hidden;
   }
 }
 
@@ -16,33 +16,40 @@
 
 @layer components {
   .glass-card {
-    @apply relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-2xl;
+    @apply relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/40 backdrop-blur-[32px];
     box-shadow: 
       0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-      0 20px 50px rgba(0, 0, 0, 0.5);
-    animation: breathing-aura 8s ease-in-out infinite;
+      0 0 40px -10px rgba(0, 0, 0, 0.5),
+      0 20px 50px -10px rgba(0, 0, 0, 0.3);
+    animation: breathing-aura 10s ease-in-out infinite;
   }
 
   .glass-card::before {
     content: "";
-    @apply absolute inset-0 pointer-events-none opacity-30 transition-opacity duration-500;
+    @apply absolute inset-0 pointer-events-none opacity-40 transition-opacity duration-700;
     background: radial-gradient(
-      800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(16, 185, 129, 0.15) 0%,
-      rgba(14, 165, 233, 0.1) 30%,
-      transparent 70%
+      1000px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(14, 165, 233, 0.12) 25%,
+      rgba(139, 92, 246, 0.05) 50%,
+      transparent 80%
     );
   }
 
   /* Interactive border highlight */
   .glass-card::after {
     content: "";
-    @apply absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-500;
+    @apply absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-700 rounded-[inherit];
+    padding: 1px;
     background: radial-gradient(
-      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(255, 255, 255, 0.08),
+      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 255, 255, 0.15),
       transparent 100%
     );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
   }
 
   .glass-card:hover::after {
@@ -51,12 +58,14 @@
 
   @keyframes breathing-aura {
     0%, 100% { 
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.1);
+      box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.1), 0 20px 50px -10px rgba(0, 0, 0, 0.5);
       border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(0);
     }
     50% { 
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(14, 165, 233, 0.15);
-      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 60px -5px rgba(14, 165, 233, 0.15), 0 25px 60px -5px rgba(0, 0, 0, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
     }
   }
 
@@ -66,7 +75,7 @@
   }
 
   .noise {
-    @apply fixed inset-0 pointer-events-none opacity-[0.03] z-[100];
+    @apply fixed inset-0 pointer-events-none opacity-[0.04] z-[100];
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 
@@ -74,18 +83,19 @@
     @apply fixed inset-0 -z-30;
     background-color: #020617;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(192, 132, 252, 0.15) 0, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(45, 212, 191, 0.15) 0, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(56, 189, 248, 0.1) 0, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.2) 0, transparent 60%),
+      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.18) 0, transparent 60%),
+      radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.2) 0, transparent 60%),
+      radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.15) 0, transparent 60%),
+      radial-gradient(at 50% 50%, rgba(2, 6, 23, 1) 0, transparent 100%);
   }
 }
 
 .code-token-keyword { @apply text-sky-400 font-medium; }
 .code-token-string { @apply text-orange-300; }
 .code-token-property { @apply text-blue-300; }
-.code-token-punctuation { @apply text-slate-400; }
-.code-token-operator { @apply text-slate-300; }
+.code-token-punctuation { @apply text-zinc-400; }
+.code-token-operator { @apply text-zinc-300; }
 
 ::-webkit-scrollbar {
   width: 6px;

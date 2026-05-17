@@ -1,24 +1,24 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 export const NotFound = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-4">
-      <motion.h1
+    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-950 text-white p-4">
+      <m.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-8xl font-bold bg-gradient-to-b from-white to-slate-600 bg-clip-text text-transparent"
+        className="text-8xl font-bold bg-gradient-to-b from-white to-zinc-600 bg-clip-text text-transparent"
       >
         404
-      </motion.h1>
-      <motion.p
+      </m.h1>
+      <m.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-xl text-slate-400 mt-4"
+        className="text-xl text-zinc-400 mt-4"
       >
         Oops! Trang này không tồn tại.
-      </motion.p>
-      <motion.button
+      </m.p>
+      <m.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
@@ -28,7 +28,7 @@ export const NotFound = () => {
         className="mt-8 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl backdrop-blur-xl transition-colors"
       >
         Quay lại trang chủ
-      </motion.button>
+      </m.button>
     </div>
   );
 };
