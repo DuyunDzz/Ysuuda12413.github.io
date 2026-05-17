@@ -24,7 +24,7 @@ export const CodeBlock = ({ onRun }: { onRun: () => void }) => {
 
   useEffect(() => {
     let currentIteration = 0;
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
 
     const tick = () => {
       if (isTyping.current) {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { m, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { m, useMotionValue, useSpring } from 'framer-motion';
 import { Facebook, Disc as Discord, Github } from 'lucide-react';
 
 const Magnetic = ({ children }: { children: React.ReactNode }) => {
