@@ -1,6 +1,45 @@
-import { useState, useEffect } from 'react';
-import { m } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { m, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Facebook, Disc as Discord, Github } from 'lucide-react';
+
+const Magnetic = ({ children }: { children: React.ReactNode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springConfig = { damping: 15, stiffness: 150 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const distanceX = clientX - centerX;
+    const distanceY = clientY - centerY;
+    
+    x.set(distanceX * 0.4);
+    y.set(distanceY * 0.4);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <m.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+    >
+      {children}
+    </m.div>
+  );
+};
 
 interface LanyardData {
   data: {
@@ -42,7 +81,7 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="p-4 md:p-5 flex flex-col items-center w-full md:w-[240px] border-b md:border-b-0 md:border-r border-white/10 shrink-0">
+    <aside className="p-5 md:p-8 flex flex-col items-center w-full md:w-[280px] border-b md:border-b-0 md:border-r border-white/10 shrink-0">
       <m.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -52,28 +91,28 @@ export const Sidebar = () => {
         <img
           src="/img/avatar.jpg"
           alt="Avatar"
-          className="size-20 rounded-full ring-4 ring-emerald-500/20 shadow-2xl transition-transform duration-500 group-hover:scale-110"
+          className="size-24 rounded-full ring-4 ring-emerald-500/20 shadow-2xl transition-transform duration-500 group-hover:scale-110"
         />
-        <div className={`absolute bottom-0.5 right-0.5 size-3.5 rounded-full border-2 border-zinc-900 ${statusColors[status]}`} />
+        <div className={`absolute bottom-1 right-1 size-4.5 rounded-full border-2 border-zinc-900 ${statusColors[status]}`} />
       </m.div>
 
       <m.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-center mt-3"
+        className="text-center mt-5"
       >
-        <h1 className="text-lg font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
           Phạm Hữu Duy
         </h1>
-        <p className="text-zinc-400 text-[10px] mt-0.5">@DuyunDz</p>
+        <p className="text-zinc-400 text-[11px] mt-1">@DuyunDz</p>
       </m.div>
 
       <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="mt-3 w-full"
+        className="mt-5 w-full"
       >
         <a 
           href={`https://discord.com/users/${userId}`}
@@ -89,12 +128,12 @@ export const Sidebar = () => {
         </a>
       </m.div>
 
-      <p className="mt-3 text-center text-[11px] text-zinc-300 max-w-[160px]">
+      <p className="mt-5 text-center text-[13px] text-zinc-300 max-w-[200px] leading-relaxed">
         Minecraft client skidder & tool developer
       </p>
 
       <m.div 
-        className="flex gap-x-3 mt-5"
+        className="flex gap-x-4 mt-8"
         initial="hidden"
         animate="visible"
         variants={{
@@ -110,26 +149,27 @@ export const Sidebar = () => {
           { icon: Discord, href: `https://discord.com/users/${userId}`, color: 'hover:text-indigo-500', shadow: 'hover:shadow-indigo-500/50' },
           { icon: Github, href: 'https://github.com/DuyunDzz', color: 'hover:text-white', shadow: 'hover:shadow-white/50' },
         ].map((item) => (
-          <m.a
-            key={item.href}
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            variants={{
-              hidden: { opacity: 0, scale: 0.8, y: 10 },
-              visible: { opacity: 1, scale: 1, y: 0 }
-            }}
-            whileHover={{ 
-              y: -8,
-              scale: 1.15,
-              rotate: [0, -5, 5, 0],
-              transition: { duration: 0.2 }
-            }}
-            whileTap={{ scale: 0.95 }}
-            className={`text-zinc-400 transition-all duration-300 p-2.5 rounded-2xl bg-white/5 border border-white/5 ${item.color} ${item.shadow} hover:bg-white/10 hover:border-white/20 shadow-xl backdrop-blur-md`}
-          >
-            <item.icon size={20} />
-          </m.a>
+          <Magnetic key={item.href}>
+            <m.a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              variants={{
+                hidden: { opacity: 0, scale: 0.8, y: 10 },
+                visible: { opacity: 1, scale: 1, y: 0 }
+              }}
+              whileHover={{ 
+                y: -8,
+                scale: 1.15,
+                rotate: [0, -5, 5, 0],
+                transition: { duration: 0.2 }
+              }}
+              whileTap={{ scale: 0.95 }}
+              className={`text-zinc-400 transition-all duration-300 p-3 rounded-2xl bg-white/5 border border-white/5 ${item.color} ${item.shadow} hover:bg-white/10 hover:border-white/20 shadow-xl backdrop-blur-md block`}
+            >
+              <item.icon size={22} />
+            </m.a>
+          </Magnetic>
         ))}
       </m.div>
     </aside>

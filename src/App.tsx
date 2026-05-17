@@ -86,6 +86,16 @@ function App() {
 
   return (
     <LazyMotion features={domAnimation}>
+      <svg className="hidden">
+        <defs>
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+            <feBlend in="SourceGraphic" in2="goo" />
+          </filter>
+        </defs>
+      </svg>
+
       {isNotFound ? (
         <NotFound />
       ) : (
@@ -95,11 +105,13 @@ function App() {
           <div className="noise" />
           <Background />
           
-          {/* Decorative floating shapes */}
-          <FloatingShape className="top-[-15%] left-[-15%] w-[50%] h-[50%] bg-emerald-500/30 rounded-full" duration={25} />
-          <FloatingShape className="bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-sky-500/25 rounded-full" delay={2} duration={30} />
-          <FloatingShape className="top-[20%] right-[10%] w-[40%] h-[40%] bg-violet-600/20 rounded-full" delay={4} duration={20} />
-          <FloatingShape className="bottom-[10%] left-[20%] w-[35%] h-[35%] bg-rose-500/15 rounded-full" delay={6} duration={28} />
+          {/* Decorative floating shapes with Gooey effect */}
+          <div style={{ filter: 'url(#goo)' }} className="fixed inset-0 pointer-events-none z-0">
+            <FloatingShape className="top-[-15%] left-[-15%] w-[50%] h-[50%] bg-emerald-500/30 rounded-full" duration={25} />
+            <FloatingShape className="bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-sky-500/25 rounded-full" delay={2} duration={30} />
+            <FloatingShape className="top-[20%] right-[10%] w-[40%] h-[40%] bg-violet-600/20 rounded-full" delay={4} duration={20} />
+            <FloatingShape className="bottom-[10%] left-[20%] w-[35%] h-[35%] bg-rose-500/15 rounded-full" delay={6} duration={28} />
+          </div>
 
           <main className="container mx-auto px-4 py-6 md:py-12 flex items-center justify-center min-h-screen relative z-10">
             <m.div
@@ -163,10 +175,10 @@ function App() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.2 }}
+                    className="max-w-2xl"
                   >
                     <CodeBlock onRun={runCode} />
                   </m.div>
-
                   <footer className="mt-5 pt-5 border-t border-white/5 text-zinc-500 text-[10px] flex items-center justify-between">
                     <p>© 2025 DuyunDz • Built with React & Vite</p>
                     <div className="flex items-center gap-x-2">

@@ -13,46 +13,92 @@ const CODE_CONTENT = `const profile = {
   }
 }`;
 
+const ALL_LINES = CODE_CONTENT.split('\n');
+
 export const CodeBlock = ({ onRun }: { onRun: () => void }) => {
-  const [displayText, setDisplayText] = useState('');
+  const [iteration, setIteration] = useState(0);
   const isTyping = useRef(true);
   const [showToast, setShowToast] = useState(false);
-  const typingSpeed = 30;
+  const typingSpeed = 25;
+  const scrambleChars = "!@#$%^&*()_+{}:<>?/[];,./";
 
   useEffect(() => {
+    let currentIteration = 0;
     let timeout: NodeJS.Timeout;
-    
-    if (isTyping.current) {
-      if (displayText.length < CODE_CONTENT.length) {
-        timeout = setTimeout(() => {
-          setDisplayText(CODE_CONTENT.slice(0, displayText.length + 1));
-        }, typingSpeed);
-      } else {
-        timeout = setTimeout(() => {
-          isTyping.current = false;
-          setDisplayText(prev => prev.slice(0, -1));
-        }, 3000);
-      }
-    } else {
-      if (displayText.length > 0) {
-        timeout = setTimeout(() => {
-          setDisplayText(CODE_CONTENT.slice(0, displayText.length - 1));
-        }, typingSpeed / 2);
-      } else {
-        timeout = setTimeout(() => {
-          isTyping.current = true;
-          setDisplayText(CODE_CONTENT.slice(0, 1));
-        }, 1000);
-      }
-    }
 
+    const tick = () => {
+      if (isTyping.current) {
+        if (currentIteration <= CODE_CONTENT.length) {
+          setIteration(currentIteration);
+          currentIteration++;
+          timeout = setTimeout(tick, currentIteration > CODE_CONTENT.length ? 4000 : typingSpeed);
+          if (currentIteration > CODE_CONTENT.length) isTyping.current = false;
+        }
+      } else {
+        if (currentIteration > 0) {
+          currentIteration--;
+          setIteration(currentIteration);
+          timeout = setTimeout(tick, typingSpeed / 2);
+        } else {
+          isTyping.current = true;
+          timeout = setTimeout(tick, 1000);
+        }
+      }
+    };
+
+    tick();
     return () => clearTimeout(timeout);
-  }, [displayText]);
+  }, []);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(CODE_CONTENT);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
+  };
+
+  // Helper to get text for each line based on global iteration
+  const getLineText = (lineIndex: number) => {
+    let charCount = 0;
+    for (let i = 0; i < lineIndex; i++) {
+      charCount += ALL_LINES[i].length + 1; // +1 for \n
+    }
+    
+    const lineContent = ALL_LINES[lineIndex];
+    const relativeIteration = iteration - charCount;
+    
+    if (relativeIteration <= 0) return "";
+    if (relativeIteration >= lineContent.length) return lineContent;
+    
+    return lineContent.split("").map((char, index) => {
+      if (index < relativeIteration) return char;
+      if (index === relativeIteration) return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+      return "";
+    }).join("");
+  };
+
+  // Helper to get scrambled line number
+  const getScrambledLineNumber = (lineIndex: number) => {
+    let charCountBefore = 0;
+    for (let i = 0; i < lineIndex; i++) {
+      charCountBefore += ALL_LINES[i].length + 1;
+    }
+    
+    const lineNumStr = (lineIndex + 1).toString();
+    const lineLength = ALL_LINES[lineIndex].length;
+    const relativeIteration = iteration - charCountBefore;
+    
+    if (relativeIteration <= 0) return "";
+    
+    // While the line is being typed/scrambled, scramble the number too
+    if (relativeIteration < lineLength) {
+      // Pick random chars based on the length of the line number string
+      return Array(lineNumStr.length)
+        .fill(0)
+        .map(() => scrambleChars[Math.floor(Math.random() * scrambleChars.length)])
+        .join("");
+    }
+    
+    return lineNumStr;
   };
 
   return (
@@ -87,21 +133,39 @@ export const CodeBlock = ({ onRun }: { onRun: () => void }) => {
         </div>
         <div className="p-3 md:p-5 font-mono text-[10px] md:text-[13px] leading-relaxed overflow-x-auto min-h-[220px] md:min-h-[280px]">
           <pre className="whitespace-pre">
-            {displayText.split('\n').map((line, i, arr) => (
-              <div key={`line-${i}`} className="flex">
-                <span className="text-zinc-600 w-5 md:w-7 inline-block select-none text-right mr-2 md:mr-3">{i + 1}</span>
-                <span>
-                  {renderHighlightedCode(line, i)}
-                  {i === arr.length - 1 && (
-                    <m.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ repeat: Infinity, duration: 0.8 }}
-                      className="inline-block w-1.5 h-3.5 bg-emerald-500 ml-0.5 align-middle"
-                    />
-                  )}
-                </span>
-              </div>
-            ))}
+            {ALL_LINES.map((_, i) => {
+              const lineText = getLineText(i);
+              const scrambledLineNum = getScrambledLineNumber(i);
+              return (
+                <div key={`line-${i}`} className="flex">
+                  <span className="text-zinc-600 w-5 md:w-7 inline-block select-none text-right mr-2 md:mr-3">
+                    {scrambledLineNum}
+                  </span>
+                  <span>
+                    {renderHighlightedCode(lineText, i)}
+                    {iteration >= CODE_CONTENT.length ? (
+                      i === ALL_LINES.length - 1 && (
+                        <m.span
+                          animate={{ opacity: [1, 0] }}
+                          transition={{ repeat: Infinity, duration: 0.8 }}
+                          className="inline-block w-1.5 h-3.5 bg-emerald-500 ml-0.5 align-middle"
+                        />
+                      )
+                    ) : (
+                      // Find which line the cursor is currently on
+                      iteration >= ALL_LINES.slice(0, i).reduce((acc, l) => acc + l.length + 1, 0) &&
+                      iteration < ALL_LINES.slice(0, i + 1).reduce((acc, l) => acc + l.length + 1, 0) && (
+                        <m.span
+                          animate={{ opacity: [1, 0] }}
+                          transition={{ repeat: Infinity, duration: 0.8 }}
+                          className="inline-block w-1.5 h-3.5 bg-emerald-500 ml-0.5 align-middle"
+                        />
+                      )
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </pre>
         </div>
       </div>
